@@ -136,21 +136,6 @@ import { NgxSignalTranslateService } from 'ngx-signal-translate';
 @Component({})
 export class DemoComponent implements ngOnInit{
   readonly #signalTranslateService = inject(NgxSignalTranslateService);
-
-  public ngOnInit(): void {
-    console.log(this.#signalTranslateService.translate('DEMO'));
-  }
-}
-```
-
-### Use in typescript files with params
-
-```ts
-import { NgxSignalTranslateService } from 'ngx-signal-translate';
-
-@Component({})
-export class DemoComponent implements ngOnInit{
-  readonly #signalTranslateService = inject(NgxSignalTranslateService);
   readonly #transaltedText = computed(() => this.#signalTranslateService.translate('DEMO'));
 
   public ngOnInit(): void {

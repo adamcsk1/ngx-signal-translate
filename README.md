@@ -38,7 +38,7 @@ A signal-driven translation service.
 
 * Lazy load language JSON files via HTTP request.
 * Pipe for translating the template strings. _(signal)_
-* Service with a synchronous and observable translate interface.
+* Service with a synchronous, signal and observable translate interface. *(The synchronous interface works with computed signal and signal effects.)*
 * Option for the variable replace in the translated strings.
 
 ## Installation
@@ -151,13 +151,22 @@ import { NgxSignalTranslateService } from 'ngx-signal-translate';
 @Component({})
 export class DemoComponent implements ngOnInit{
   readonly #signalTranslateService = inject(NgxSignalTranslateService);
+  readonly #transaltedText = computed(() => this.#signalTranslateService.translate('DEMO'));
 
   public ngOnInit(): void {
     console.log(this.#signalTranslateService.translate('DEMO'));
     /* If the selected language files were not loaded, then the function will return with the translation key. */
 
-    this.#signalTranslateService.translate$('DEMO').subscribe(console.log)
+    this.#signalTranslateService.translate$('DEMO').subscribe(console.log);
     /* The translate$ observable will wait for the language file to load. */
+
+    console.log(this.#transaltedText());
+    /* The translate function works with computed signals. That will trigger the value refresh when the language resource / selected language changed. */
+
+    effect(() => {
+      console.log(this.#signalTranslateService.translate('DEMO'));
+    });
+    /* The translate function triggers the signal effects. */
   }
 }
 ```

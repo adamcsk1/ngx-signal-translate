@@ -3,8 +3,10 @@ import { NgxSignalTranslateService, provideSignalTranslateConfig } from '../../s
 import { NgxSignalTranslateLoaderService } from '../../src/lib/ngx-signal-translate-loader.service';
 import { lastValueFrom, of } from 'rxjs';
 import { LanguageResource } from '../../src/lib/ngx-signal-translate.interface';
+import { computed, effect, Injector, runInInjectionContext } from '@angular/core';
 
 describe('NgxSignalTranslateService', () => {
+  let injector: Injector;
   let service: NgxSignalTranslateService;
   let loaderService: NgxSignalTranslateLoaderService;
   const mockLanguageFile: LanguageResource = {
@@ -12,6 +14,7 @@ describe('NgxSignalTranslateService', () => {
     MOCK_PARAM: 'Mock {param}',
     MOCK_MULTI_PARAM: 'Mock {param} {param2} {param}',
   };
+  const createTestEffect = (callback: () => void) => runInInjectionContext(injector, () => effect(callback));
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -23,6 +26,7 @@ describe('NgxSignalTranslateService', () => {
     });
     service = TestBed.inject(NgxSignalTranslateService);
     loaderService = TestBed.inject(NgxSignalTranslateLoaderService);
+    injector = TestBed.inject(Injector);
   });
 
   it('should be created', () => expect(service).toBeTruthy());
@@ -74,6 +78,36 @@ describe('NgxSignalTranslateService', () => {
     it('should replace params', () => expect(service.translate('MOCK_PARAM', { param: '42' })).toBe('Mock 42'));
 
     it('should replace all params', () => expect(service.translate('MOCK_MULTI_PARAM', { param: '42', param2: 'is' })).toBe('Mock 42 is 42'));
+
+    it('should trigger effect', () => {
+      let effectTriggerTimes = 0;
+      const mockLanguageFileDe: LanguageResource = { MOCK: 'Mock de' };
+
+      createTestEffect(() => {
+        effectTriggerTimes++;
+
+        if (effectTriggerTimes === 1) expect(service.translate('MOCK')).toBe('Mock');
+        else if (effectTriggerTimes === 2) expect(service.translate('MOCK')).toBe(mockLanguageFileDe['MOCK']);
+      });
+      TestBed.flushEffects();
+      (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(mockLanguageFileDe));
+      service.setLanguage('de');
+      TestBed.flushEffects();
+    });
+
+    it('should works with computed signal', () =>
+      runInInjectionContext(injector, () => {
+        const mockLanguageFileFr: LanguageResource = { MOCK: 'Mock fr' };
+        const computedSignal = computed(() => service.translate('MOCK'));
+
+        expect(computedSignal()).toBe(mockLanguageFile['MOCK']);
+
+        (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(mockLanguageFileFr));
+
+        service.setLanguage('fr');
+        TestBed.flushEffects();
+        expect(computedSignal()).toBe(mockLanguageFileFr['MOCK']);
+      }));
   });
 
   describe('translate$', () => {

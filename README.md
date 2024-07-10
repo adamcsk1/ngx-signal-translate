@@ -138,6 +138,13 @@ export class DemoComponent implements ngOnInit{
   readonly #signalTranslateService = inject(NgxSignalTranslateService);
   readonly #transaltedText = computed(() => this.#signalTranslateService.translate('DEMO'));
 
+  constructor() {
+    effect(() => {
+      console.log(this.#signalTranslateService.translate('DEMO'));
+    });
+    /* The translate function triggers the signal effects. */
+  } 
+
   public ngOnInit(): void {
     console.log(this.#signalTranslateService.translate('DEMO'));
     /* If the selected language files were not loaded, then the function will return with the translation key. */
@@ -147,11 +154,6 @@ export class DemoComponent implements ngOnInit{
 
     console.log(this.#transaltedText());
     /* The translate function works with computed signals. That will trigger the value refresh when the language resource / selected language changed. */
-
-    effect(() => {
-      console.log(this.#signalTranslateService.translate('DEMO'));
-    });
-    /* The translate function triggers the signal effects. */
   }
 }
 ```

@@ -1,0 +1,3 @@
+./scripts/prettier-pre-commit.sh
+npm run eslint
+npm run test

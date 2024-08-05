@@ -3,7 +3,7 @@ import { TranslateParams } from './ngx-signal-translate.interface';
 import { NgxSignalTranslateService } from './ngx-signal-translate.service';
 
 @Pipe({
-  name: 'signalTransalte',
+  name: 'signalTranslate',
   standalone: true,
 })
 export class NgxSignalTranslatePipe implements PipeTransform {

@@ -16,19 +16,19 @@ describe('NgxSignalTranslatePipe', () => {
 
   it('should be created', () => expect(pipe).toBeTruthy());
 
-  it('should transform return with a transalte signal', () => {
-    const transalteKey = 'TextForTransalte';
-    const translateSignal = pipe.transform(transalteKey);
-    (service.translate as jasmine.Spy<jasmine.Func>).and.returnValue(transalteKey);
-    expect(translateSignal()).toBe(transalteKey);
-    expect(service.translate).toHaveBeenCalledWith(transalteKey, undefined);
+  it('should transform return with a translate signal', () => {
+    const translateKey = 'TextForTranslate';
+    const translateSignal = pipe.transform(translateKey);
+    (service.translate as jasmine.Spy<jasmine.Func>).and.returnValue(translateKey);
+    expect(translateSignal()).toBe(translateKey);
+    expect(service.translate).toHaveBeenCalledWith(translateKey, undefined);
   });
 
   it('should transform pass params to the translate function', () => {
-    const transalteKey = 'TextForTransalte';
+    const translateKey = 'TextForTranslate';
     const mockParam: TranslateParams = { mock: 'param' };
-    const translateSignal = pipe.transform(transalteKey, mockParam);
+    const translateSignal = pipe.transform(translateKey, mockParam);
     translateSignal();
-    expect(service.translate).toHaveBeenCalledWith(transalteKey, mockParam);
+    expect(service.translate).toHaveBeenCalledWith(translateKey, mockParam);
   });
 });

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { NgxSignalTranslateLoaderService } from '../../src/lib/ngx-signal-translate-loader.service';
-import { provideSignalTranslateConfig, SignalTransalteConfig } from '../../src/public-api';
+import { provideSignalTranslateConfig, SignalTranslateConfig } from '../../src/public-api';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
@@ -9,7 +9,7 @@ import { LanguageResource } from '../../src/lib/ngx-signal-translate.interface';
 describe('NgxSignalTranslateLoaderService', () => {
   let service: NgxSignalTranslateLoaderService;
   let httpTesting: HttpTestingController;
-  const config: SignalTransalteConfig = { path: '' };
+  const config: SignalTranslateConfig = { path: '' };
 
   beforeEach(() => {
     TestBed.configureTestingModule({

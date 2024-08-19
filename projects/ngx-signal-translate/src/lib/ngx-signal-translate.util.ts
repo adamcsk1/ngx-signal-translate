@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { SignalTransalteConfig } from './ngx-signal-translate.interface';
+import { SignalTranslateConfig } from './ngx-signal-translate.interface';
 
-export const signalTransalteConfig = new InjectionToken<SignalTransalteConfig>('SignalTransalteConfig');
-export const provideSignalTranslateConfig = (config: SignalTransalteConfig) => ({ provide: signalTransalteConfig, useValue: config });
+export const signalTranslateConfig = new InjectionToken<SignalTranslateConfig>('SignalTranslateConfig');
+export const provideSignalTranslateConfig = (config: SignalTranslateConfig) => ({ provide: signalTranslateConfig, useValue: config });

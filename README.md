@@ -119,13 +119,13 @@ export class DemoComponent {}
 without params:
 
 ```html
-<p>{{('Demo' | signalTransalte)()}}</p>
+<p>{{('Demo' | signalTranslate)()}}</p>
 ```
 
 with params:
 
 ```html
-<p>{{('Demo' | signalTransalte : {param: 'hello'})()}}</p>
+<p>{{('Demo' | signalTranslate : {param: 'hello'})()}}</p>
 ```
 
 ### Typescript files
@@ -136,14 +136,14 @@ import { NgxSignalTranslateService } from 'ngx-signal-translate';
 @Component({})
 export class DemoComponent implements ngOnInit{
   readonly #signalTranslateService = inject(NgxSignalTranslateService);
-  readonly #transaltedText = computed(() => this.#signalTranslateService.translate('DEMO'));
+  readonly #translatedText = computed(() => this.#signalTranslateService.translate('DEMO'));
 
   constructor() {
     effect(() => {
       console.log(this.#signalTranslateService.translate('DEMO'));
     });
     /* The translate function triggers the signal effects. */
-  } 
+  }
 
   public ngOnInit(): void {
     console.log(this.#signalTranslateService.translate('DEMO'));
@@ -152,7 +152,7 @@ export class DemoComponent implements ngOnInit{
     this.#signalTranslateService.translate$('DEMO').subscribe(console.log);
     /* The translate$ observable will wait for the language file to load. */
 
-    console.log(this.#transaltedText());
+    console.log(this.#translatedText());
     /* The translate function works with computed signals. That will trigger the value refresh when the language resource / selected language changed. */
   }
 }

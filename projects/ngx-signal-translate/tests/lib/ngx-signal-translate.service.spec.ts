@@ -60,19 +60,19 @@ describe('NgxSignalTranslateService', () => {
       TestBed.flushEffects();
     });
 
-    it('should return with the transalted value', () => expect(service.translate('MOCK')).toBe(mockLanguageFile['MOCK']));
+    it('should return with the translated value', () => expect(service.translate('MOCK')).toBe(mockLanguageFile['MOCK']));
 
-    it('should return with the transalte key when the key is unknonw', () => {
-      const transalteKey = 'MOCK_UNKNOWN';
-      expect(service.translate(transalteKey)).toBe(transalteKey);
+    it('should return with the translate key when the key is unknown', () => {
+      const translateKey = 'MOCK_UNKNOWN';
+      expect(service.translate(translateKey)).toBe(translateKey);
     });
 
-    it('should return with the transalte key when the selected language is unknonw', () => {
+    it('should return with the translate key when the selected language is unknown', () => {
       (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(null));
       service.setLanguage('de');
       TestBed.flushEffects();
-      const transalteKey = 'MOCK_UNKNOWN_LANGUAGE';
-      expect(service.translate(transalteKey)).toBe(transalteKey);
+      const translateKey = 'MOCK_UNKNOWN_LANGUAGE';
+      expect(service.translate(translateKey)).toBe(translateKey);
     });
 
     it('should replace params', () => expect(service.translate('MOCK_PARAM', { param: '42' })).toBe('Mock 42'));

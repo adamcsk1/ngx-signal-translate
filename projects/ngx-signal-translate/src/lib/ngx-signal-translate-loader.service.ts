@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
-import { signalTransalteConfig } from './ngx-signal-translate.util';
+import { signalTranslateConfig } from './ngx-signal-translate.util';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NgxSignalTranslateLoaderService {
-  readonly #config = inject(signalTransalteConfig);
+  readonly #config = inject(signalTranslateConfig);
   readonly #httpClient = inject(HttpClient);
 
   public loadTranslationFile(language: string): Observable<Record<string, string> | null> {

@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform, Signal, computed, inject } from '@angular/core';
+import { Pipe, PipeTransform, Signal, computed, inject, signal, untracked } from '@angular/core';
 import { TranslateParams } from './ngx-signal-translate.interface';
 import { NgxSignalTranslateService } from './ngx-signal-translate.service';
 
@@ -8,13 +8,15 @@ import { NgxSignalTranslateService } from './ngx-signal-translate.service';
 })
 export class NgxSignalTranslatePipe implements PipeTransform {
   readonly #ngxSignalTranslateService = inject(NgxSignalTranslateService);
-  readonly #translate = computed(() => this.#ngxSignalTranslateService.translate(this.#translateKey, this.#params));
-  #translateKey = '';
-  #params?: TranslateParams;
+  readonly #translated = computed(() => this.#ngxSignalTranslateService.translate(this.#translateKey(), this.#params()));
+  readonly #translateKey = signal('');
+  readonly #params = signal<TranslateParams | undefined>(undefined);
 
   public transform(translateKey: string, params?: TranslateParams): Signal<string> {
-    this.#translateKey = translateKey;
-    this.#params = params;
-    return this.#translate;
+    untracked(() => {
+      this.#translateKey.set(translateKey);
+      this.#params.set(params);
+    });
+    return this.#translated;
   }
 }

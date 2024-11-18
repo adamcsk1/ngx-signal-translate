@@ -1,10 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 
 import { NgxSignalTranslatePipe, NgxSignalTranslateService, TranslateParams } from '../../src/public-api';
+import { Injector, EffectRef } from '@angular/core';
+import { createTestEffectFactory } from './ngx-signal-translate.service.util';
 
 describe('NgxSignalTranslatePipe', () => {
   let pipe: NgxSignalTranslatePipe;
   let service: NgxSignalTranslateService;
+  let injector: Injector;
+  let createTestEffect: (callback: () => void) => EffectRef;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -12,6 +16,8 @@ describe('NgxSignalTranslatePipe', () => {
     });
     pipe = TestBed.inject(NgxSignalTranslatePipe);
     service = TestBed.inject(NgxSignalTranslateService);
+    injector = TestBed.inject(Injector);
+    createTestEffect = createTestEffectFactory(injector);
   });
 
   it('should be created', () => expect(pipe).toBeTruthy());
@@ -30,5 +36,14 @@ describe('NgxSignalTranslatePipe', () => {
     const translateSignal = pipe.transform(translateKey, mockParam);
     translateSignal();
     expect(service.translate).toHaveBeenCalledWith(translateKey, mockParam);
+  });
+
+  it('should react the translate signal for the parameters change', () => {
+    const translateKey = 'TextForTranslate';
+    const translateSignal = pipe.transform('');
+    createTestEffect(() => translateSignal());
+    pipe.transform(translateKey);
+    TestBed.flushEffects();
+    expect(service.translate).toHaveBeenCalledWith(translateKey, undefined);
   });
 });

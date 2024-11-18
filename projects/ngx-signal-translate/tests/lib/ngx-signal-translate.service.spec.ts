@@ -3,18 +3,19 @@ import { NgxSignalTranslateService, provideSignalTranslateConfig } from '../../s
 import { NgxSignalTranslateLoaderService } from '../../src/lib/ngx-signal-translate-loader.service';
 import { lastValueFrom, of } from 'rxjs';
 import { LanguageResource } from '../../src/lib/ngx-signal-translate.interface';
-import { computed, effect, Injector, runInInjectionContext } from '@angular/core';
+import { computed, EffectRef, Injector, runInInjectionContext } from '@angular/core';
+import { createTestEffectFactory } from './ngx-signal-translate.service.util';
 
 describe('NgxSignalTranslateService', () => {
   let injector: Injector;
   let service: NgxSignalTranslateService;
   let loaderService: NgxSignalTranslateLoaderService;
+  let createTestEffect: (callback: () => void) => EffectRef;
   const mockLanguageFile: LanguageResource = {
     MOCK: 'Mock',
     MOCK_PARAM: 'Mock {param}',
     MOCK_MULTI_PARAM: 'Mock {param} {param2} {param}',
   };
-  const createTestEffect = (callback: () => void) => runInInjectionContext(injector, () => effect(callback));
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -27,6 +28,7 @@ describe('NgxSignalTranslateService', () => {
     service = TestBed.inject(NgxSignalTranslateService);
     loaderService = TestBed.inject(NgxSignalTranslateLoaderService);
     injector = TestBed.inject(Injector);
+    createTestEffect = createTestEffectFactory(injector);
   });
 
   it('should be created', () => expect(service).toBeTruthy());

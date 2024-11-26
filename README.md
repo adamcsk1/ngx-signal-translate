@@ -52,7 +52,7 @@ A signal-driven translation service.
 ## Installation
 
 ```bash
-npm ngx-signal-translate
+npm install ngx-signal-translate
 # Or if you use yarn
 yarn add ngx-signal-translate
 ```

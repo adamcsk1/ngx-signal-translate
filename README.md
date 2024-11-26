@@ -12,6 +12,14 @@ A signal-driven translation service.
     </tr>
   </thead>
   <tbody>
+      <tr>
+      <td>
+        2.x
+      </td>
+      <td>
+        >= 19
+      </td>
+    </tr>
     <tr>
       <td>
         1.x

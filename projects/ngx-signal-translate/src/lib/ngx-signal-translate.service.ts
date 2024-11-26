@@ -15,14 +15,11 @@ export class NgxSignalTranslateService {
   public readonly currentLanguage = this.#selectedLanguage.asReadonly();
 
   constructor() {
-    effect(
-      async () => {
-        const languageResources = this.#languageResources();
-        const currentLanguage = this.currentLanguage();
-        if (currentLanguage && !languageResources[currentLanguage]) this.#loadLangauge(currentLanguage).subscribe();
-      },
-      { allowSignalWrites: true },
-    );
+    effect(async () => {
+      const languageResources = this.#languageResources();
+      const currentLanguage = this.currentLanguage();
+      if (currentLanguage && !languageResources[currentLanguage]) this.#loadLanguage(currentLanguage).subscribe();
+    });
   }
 
   public setLanguage(language: string): void {
@@ -53,7 +50,7 @@ export class NgxSignalTranslateService {
     else return of(this.translate(key, params));
   }
 
-  #loadLangauge(language: string): Observable<Record<string, string> | null> {
+  #loadLanguage(language: string): Observable<Record<string, string> | null> {
     return this.#ngxSignalTranslateLoaderService.loadTranslationFile(language).pipe(
       take(1),
       tap((resource) => this.#patchLanguageResource(language, resource)),

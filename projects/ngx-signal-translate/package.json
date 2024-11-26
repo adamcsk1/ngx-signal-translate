@@ -1,10 +1,10 @@
 {
   "name": "ngx-signal-translate",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^18.0.0",
-    "@angular/core": "^18.0.0"
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

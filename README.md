@@ -12,12 +12,20 @@ A signal-driven translation service.
     </tr>
   </thead>
   <tbody>
-      <tr>
+    <tr>
+      <td>
+        3.x
+      </td>
+      <td>
+        >= 20.x.x
+      </td>
+    </tr>
+    <tr>
       <td>
         2.x
       </td>
       <td>
-        >= 19
+        19.x.x
       </td>
     </tr>
     <tr>
@@ -25,7 +33,7 @@ A signal-driven translation service.
         1.x
       </td>
       <td>
-        >= 18
+        18.x.x
       </td>
     </tr>
   </tbody>

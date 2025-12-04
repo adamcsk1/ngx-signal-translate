@@ -43,7 +43,7 @@ describe('NgxSignalTranslatePipe', () => {
     const translateSignal = pipe.transform('');
     createTestEffect(() => translateSignal());
     pipe.transform(translateKey);
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(service.translate).toHaveBeenCalledWith(translateKey, undefined);
   });
 });

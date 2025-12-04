@@ -2,54 +2,6 @@
 
 A signal-driven translation service.
 
-## Compatibility with Angular Versions
-
-<table>
-  <thead>
-    <tr>
-      <th>ngx-signal-translate</th>
-      <th>Angular</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        3.x
-      </td>
-      <td>
-        >= 20.x.x
-      </td>
-    </tr>
-    <tr>
-      <td>
-        2.x
-      </td>
-      <td>
-        19.x.x
-      </td>
-    </tr>
-    <tr>
-      <td>
-        1.x
-      </td>
-      <td>
-        18.x.x
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-## Table of contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Language file](#a-language-file)
-- [Params in the language file](#params-in-the-language-file)
-- [Usage](#usage)
-  - [Component template](#component-template)
-  - [Typescript files](#typescript-files)
-
 ## Features
 
 * Lazy load language JSON files via HTTP request.
@@ -175,3 +127,48 @@ export class DemoComponent implements ngOnInit{
 ```
 
 The second parameter can be used to pass translate variables to the _translate_ and _translate$_ function.
+
+## Compatibility with Angular Versions
+
+<table>
+  <thead>
+    <tr>
+      <th>ngx-signal-translate</th>
+      <th>Angular</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        -
+      </td>
+      <td>
+        Newer versions follow Angular’s versioning format.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        3.x
+      </td>
+      <td>
+        >= 20.x.x
+      </td>
+    </tr>
+    <tr>
+      <td>
+        2.x
+      </td>
+      <td>
+        19.x.x
+      </td>
+    </tr>
+    <tr>
+      <td>
+        1.x
+      </td>
+      <td>
+        18.x.x
+      </td>
+    </tr>
+  </tbody>
+</table>

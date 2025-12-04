@@ -36,7 +36,7 @@ describe('NgxSignalTranslateService', () => {
   it('should setLanguage load language file', () => {
     const language = 'en';
     service.setLanguage(language);
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(loaderService.loadTranslationFile).toHaveBeenCalledWith(language);
     expect(service.currentLanguage()).toBe(language);
   });
@@ -44,14 +44,14 @@ describe('NgxSignalTranslateService', () => {
   it('should load every language file once', () => {
     let language = 'en';
     service.setLanguage(language);
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(loaderService.loadTranslationFile).toHaveBeenCalledWith(language);
     service.setLanguage(language);
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(loaderService.loadTranslationFile).toHaveBeenCalledTimes(1);
     language = 'de';
     service.setLanguage(language);
-    TestBed.flushEffects();
+    TestBed.tick();
     expect(loaderService.loadTranslationFile).toHaveBeenCalledWith(language);
     expect(loaderService.loadTranslationFile).toHaveBeenCalledTimes(2);
   });
@@ -59,7 +59,7 @@ describe('NgxSignalTranslateService', () => {
   describe('translate', () => {
     beforeEach(() => {
       service.setLanguage('en');
-      TestBed.flushEffects();
+      TestBed.tick();
     });
 
     it('should return with the translated value', () => expect(service.translate('MOCK')).toBe(mockLanguageFile['MOCK']));
@@ -72,7 +72,7 @@ describe('NgxSignalTranslateService', () => {
     it('should return with the translate key when the selected language is unknown', () => {
       (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(null));
       service.setLanguage('de');
-      TestBed.flushEffects();
+      TestBed.tick();
       const translateKey = 'MOCK_UNKNOWN_LANGUAGE';
       expect(service.translate(translateKey)).toBe(translateKey);
     });
@@ -91,10 +91,10 @@ describe('NgxSignalTranslateService', () => {
         if (effectTriggerTimes === 1) expect(service.translate('MOCK')).toBe('Mock');
         else if (effectTriggerTimes === 2) expect(service.translate('MOCK')).toBe(mockLanguageFileDe['MOCK']);
       });
-      TestBed.flushEffects();
+      TestBed.tick();
       (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(mockLanguageFileDe));
       service.setLanguage('de');
-      TestBed.flushEffects();
+      TestBed.tick();
     });
 
     it('should works with computed signal', () =>
@@ -107,7 +107,7 @@ describe('NgxSignalTranslateService', () => {
         (loaderService.loadTranslationFile as jasmine.Spy<jasmine.Func>).and.returnValue(of(mockLanguageFileFr));
 
         service.setLanguage('fr');
-        TestBed.flushEffects();
+        TestBed.tick();
         expect(computedSignal()).toBe(mockLanguageFileFr['MOCK']);
       }));
   });
@@ -120,12 +120,12 @@ describe('NgxSignalTranslateService', () => {
       });
 
       service.setLanguage('en');
-      TestBed.flushEffects();
+      TestBed.tick();
     });
 
     it('should return push the translated value', async () => {
       service.setLanguage('en');
-      TestBed.flushEffects();
+      TestBed.tick();
 
       const translatedValue = await lastValueFrom(service.translate$('MOCK'));
 

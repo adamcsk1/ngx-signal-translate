@@ -5,6 +5,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideHttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { LanguageResource } from '../../src/lib/ngx-signal-translate.interface';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 
 describe('NgxSignalTranslateLoaderService', () => {
   let service: NgxSignalTranslateLoaderService;

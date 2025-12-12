@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { NgxSignalTranslatePipe, NgxSignalTranslateService, TranslateParams } from '../../src/public-api';
 import { Injector, EffectRef } from '@angular/core';
@@ -12,7 +13,7 @@ describe('NgxSignalTranslatePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [NgxSignalTranslatePipe, { provide: NgxSignalTranslateService, useValue: { translate: jasmine.createSpy('translate') } }],
+      providers: [NgxSignalTranslatePipe, { provide: NgxSignalTranslateService, useValue: { translate: vi.fn() } }],
     });
     pipe = TestBed.inject(NgxSignalTranslatePipe);
     service = TestBed.inject(NgxSignalTranslateService);
@@ -25,7 +26,8 @@ describe('NgxSignalTranslatePipe', () => {
   it('should transform return with a translate signal', () => {
     const translateKey = 'TextForTranslate';
     const translateSignal = pipe.transform(translateKey);
-    (service.translate as jasmine.Spy<jasmine.Func>).and.returnValue(translateKey);
+    const translateMock = service.translate as unknown as ReturnType<typeof vi.fn>;
+    translateMock.mockReturnValue(translateKey);
     expect(translateSignal()).toBe(translateKey);
     expect(service.translate).toHaveBeenCalledWith(translateKey, undefined);
   });
@@ -38,12 +40,12 @@ describe('NgxSignalTranslatePipe', () => {
     expect(service.translate).toHaveBeenCalledWith(translateKey, mockParam);
   });
 
-  it('should react the translate signal for the parameters change', () => {
+  it('should react the translate signal for the parameters change', async () => {
     const translateKey = 'TextForTranslate';
     const translateSignal = pipe.transform('');
     createTestEffect(() => translateSignal());
     pipe.transform(translateKey);
-    TestBed.tick();
+    translateSignal();
     expect(service.translate).toHaveBeenCalledWith(translateKey, undefined);
   });
 });

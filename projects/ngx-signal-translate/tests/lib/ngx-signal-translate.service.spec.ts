@@ -76,6 +76,8 @@ describe('NgxSignalTranslateService', () => {
 
     it('should replace params', () => expect(service.translate('MOCK_PARAM', { param: '42' })).toBe('Mock 42'));
 
+    it('should replace numeric params', () => expect(service.translate('MOCK_PARAM', { param: 7 })).toBe('Mock 7'));
+
     it('should replace all params', () => expect(service.translate('MOCK_MULTI_PARAM', { param: '42', param2: 'is' })).toBe('Mock 42 is 42'));
 
     it('should trigger effect', async () => {
@@ -130,6 +132,16 @@ describe('NgxSignalTranslateService', () => {
       const translatedValue = await lastValueFrom(service.translate$('MOCK'));
 
       expect(translatedValue).toBe(mockLanguageFile['MOCK']);
+    });
+
+    it('should not load language until one is selected', () => {
+      service.translate$('MOCK').subscribe();
+      TestBed.tick();
+      expect(loadTranslationFileSpy).not.toHaveBeenCalled();
+
+      service.setLanguage('en');
+      TestBed.tick();
+      expect(loadTranslationFileSpy).toHaveBeenCalledWith('en');
     });
   });
 });

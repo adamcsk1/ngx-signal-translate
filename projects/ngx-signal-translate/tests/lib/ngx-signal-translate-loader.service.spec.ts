@@ -49,6 +49,42 @@ describe('NgxSignalTranslateLoaderService', () => {
       expect(await responsePromise).toEqual(mockResponse);
     });
 
+    it('should trim leading slash in base path', async () => {
+      config.path = '/language';
+      const mockResponse: LanguageResource = { mock: 'Mock' };
+
+      const responsePromise = lastValueFrom(service.loadTranslationFile('en'));
+      const req = httpTesting.expectOne('/language/en.json');
+      req.flush(mockResponse);
+
+      expect(req.request.method).toBe('GET');
+      expect(await responsePromise).toEqual(mockResponse);
+    });
+
+    it('should avoid double slashes with trailing slash in base path', async () => {
+      config.path = 'language/';
+      const mockResponse: LanguageResource = { mock: 'Mock' };
+
+      const responsePromise = lastValueFrom(service.loadTranslationFile('en'));
+      const req = httpTesting.expectOne('/language/en.json');
+      req.flush(mockResponse);
+
+      expect(req.request.method).toBe('GET');
+      expect(await responsePromise).toEqual(mockResponse);
+    });
+
+    it('should support absolute URL base path', async () => {
+      config.path = 'https://cdn.example.com/i18n';
+      const mockResponse: LanguageResource = { mock: 'Mock' };
+
+      const responsePromise = lastValueFrom(service.loadTranslationFile('en'));
+      const req = httpTesting.expectOne('https://cdn.example.com/i18n/en.json');
+      req.flush(mockResponse);
+
+      expect(req.request.method).toBe('GET');
+      expect(await responsePromise).toEqual(mockResponse);
+    });
+
     it('should return with null when the pipe catch a http error', async () => {
       config.path = '';
 

@@ -1,6 +1,7 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { map, Observable, of, skip, take, tap } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap, filter, switchMap, take } from 'rxjs/operators';
 import { NgxSignalTranslateLoaderService } from './ngx-signal-translate-loader.service';
 import { LanguageResources, TranslateParams } from './ngx-signal-translate.interface';
 
@@ -10,15 +11,16 @@ import { LanguageResources, TranslateParams } from './ngx-signal-translate.inter
 export class NgxSignalTranslateService {
   readonly #ngxSignalTranslateLoaderService = inject(NgxSignalTranslateLoaderService);
   readonly #languageResources = signal<LanguageResources>({});
-  readonly #languageResources$ = toObservable(this.#languageResources);
   readonly #selectedLanguage = signal<string>('');
+  readonly #inFlightLoads = new Map<string, Observable<void>>();
   public readonly currentLanguage = this.#selectedLanguage.asReadonly();
+  readonly #currentLanguage$ = toObservable(this.currentLanguage);
 
   constructor() {
-    effect(async () => {
-      const languageResources = this.#languageResources();
-      const currentLanguage = this.currentLanguage();
-      if (currentLanguage && !languageResources[currentLanguage]) this.#loadLanguage(currentLanguage).subscribe();
+    effect(() => {
+      const language = this.currentLanguage();
+      if (!language) return;
+      this.#ensureLanguageLoaded(language).subscribe();
     });
   }
 
@@ -30,34 +32,49 @@ export class NgxSignalTranslateService {
     const currentLanguage = this.currentLanguage();
     const languageResources = this.#languageResources();
 
-    let translatedString = languageResources[currentLanguage]?.[key];
+    const value = languageResources[currentLanguage]?.[key];
 
-    if (translatedString && !!params) {
-      for (const replaceKey in params) translatedString = translatedString.replaceAll(`{${replaceKey}}`, params[replaceKey]);
-      return translatedString;
-    } else return translatedString || key;
+    if (!value) return key;
+    if (!params) return value;
+
+    return Object.entries(params).reduce((previousValue, [paramKey, paramValue]) => previousValue.replaceAll(`{${paramKey}}`, String(paramValue)), value);
   }
 
   public translate$(key: string, params?: TranslateParams): Observable<string> {
     const currentLanguage = this.currentLanguage();
-    const languageResources = this.#languageResources();
-    if (!languageResources[currentLanguage])
-      return this.#languageResources$.pipe(
-        skip(1),
-        take(1),
-        map(() => this.translate(key, params)),
-      );
-    else return of(this.translate(key, params));
+    const waitForLanguage$ = currentLanguage
+      ? of(currentLanguage)
+      : this.#currentLanguage$.pipe(
+          filter((language): language is string => !!language),
+          take(1),
+        );
+
+    return waitForLanguage$.pipe(switchMap((language) => this.#ensureLanguageLoaded(language).pipe(map(() => this.translate(key, params)))));
   }
 
-  #loadLanguage(language: string): Observable<Record<string, string> | null> {
-    return this.#ngxSignalTranslateLoaderService.loadTranslationFile(language).pipe(
-      take(1),
-      tap((resource) => this.#patchLanguageResource(language, resource)),
+  #ensureLanguageLoaded(language: string): Observable<void> {
+    if (!language) return of(void 0);
+    if (this.#languageResources()[language]) return of(void 0);
+
+    const inFlight = this.#inFlightLoads.get(language);
+    if (inFlight) return inFlight;
+
+    const load$ = this.#ngxSignalTranslateLoaderService.loadTranslationFile(language).pipe(
+      tap((resource) => this.#patchLanguageResource(language, resource || {})),
+      catchError(() => {
+        this.#patchLanguageResource(language, {});
+        return of(null);
+      }),
+      map(() => void 0),
+      finalize(() => this.#inFlightLoads.delete(language)),
+      shareReplay(1),
     );
+
+    this.#inFlightLoads.set(language, load$);
+    return load$;
   }
 
-  #patchLanguageResource(key: string, resource: Record<string, string> | null): void {
-    if (resource) this.#languageResources.update((state) => ({ ...state, [key]: resource }));
+  #patchLanguageResource(language: string, resource: Record<string, string>): void {
+    this.#languageResources.update((state) => ({ ...state, [language]: resource }));
   }
 }

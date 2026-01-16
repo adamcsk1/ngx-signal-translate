@@ -11,8 +11,19 @@ export class NgxSignalTranslateLoaderService {
   readonly #httpClient = inject(HttpClient);
 
   public loadTranslationFile(language: string): Observable<Record<string, string> | null> {
+    return this.#httpClient.get<Record<string, string> | null>(this.#buildUrl(language)).pipe(catchError(() => of(null)));
+  }
+
+  #buildUrl(language: string): string {
     const file = `${language}.json`;
-    const basePath = this.#config.path ? `/${this.#config.path}` : '';
-    return this.#httpClient.get<Record<string, string> | null>(`${basePath}/${file}`).pipe(catchError(() => of(null)));
+    const basePath = (this.#config.path || '').trim();
+
+    if (!basePath) return `/${file}`;
+
+    const trimmed = basePath.replace(/\/+$/, '');
+    if (/^https?:\/\//i.test(trimmed)) return `${trimmed}/${file}`;
+
+    const relative = trimmed.replace(/^\/+/, '');
+    return `/${relative ? `${relative}/` : ''}${file}`;
   }
 }

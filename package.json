@@ -8,8 +8,8 @@
     "publish": "cd ./dist/ngx-signal-translate && npm publish",
     "test": "vitest run",
     "test:watch": "vitest",
-    "eslint": "eslint ./projects/ngx-signal-translate/",
-    "eslint:fix": "eslint  ./projects/ngx-signal-translate/ --fix",
+    "lint": "eslint ./projects/ngx-signal-translate/",
+    "lint:fix": "eslint  ./projects/ngx-signal-translate/ --fix",
     "copy": "node scripts/copy.js",
     "prepare": "husky"
   },

@@ -1,134 +1,120 @@
 # NgxSignalTranslate
 
-A signal-driven translation service.
+Signal-first i18n for Angular: lazy-loaded JSON resources, a signal-friendly pipe, and a service with sync, signal, and observable APIs.
 
-## Features
+## Highlights
+- Lazy-load language JSON over HTTP; each language loads once and caches.
+- Template pipe that returns a `Signal<string>` for ergonomic use in templates.
+- Service APIs: `translate` (sync, signal-friendly), `translate$` (observable that waits for language load), and `setLanguage`.
+- Placeholder replacement with `string | number` params.
 
-* Lazy load language JSON files via HTTP request.
-* Pipe for translating the template strings. _(signal)_
-* Service with a synchronous, signal and observable translate interface. *(The synchronous interface works with computed signal and signal effects.)*
-* Option for the variable replace in the translated strings.
-
-## Installation
+## Install
 
 ```bash
 npm install ngx-signal-translate
-# Or if you use yarn
-yarn add ngx-signal-translate
 ```
 
-### Configuration
+## Configure
 
-Add configuration provider to your app.config.ts as provider.
+Register the config provider in `app.config.ts` (or your bootstrap providers). The `path` is optional; default is the app root.
 
 ```ts
+import { ApplicationConfig } from '@angular/core';
 import { provideSignalTranslateConfig } from 'ngx-signal-translate';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideSignalTranslateConfig({path: ''}),
-  ],
+  providers: [provideSignalTranslateConfig({ path: 'assets/i18n' })],
 };
 ```
 
-The path is a required config parameter, that will be the json language files base folder.
+Set the initial language (for example in your root component):
 
-And finally set the default language in your AppComponent constructor:
 ```ts
+import { Component, inject } from '@angular/core';
 import { NgxSignalTranslateService } from 'ngx-signal-translate';
 
-@Component({})
+@Component({
+  selector: 'app-root',
+  template: '<router-outlet />',
+})
 export class AppComponent {
-  readonly #signalTranslateService = inject(NgxSignalTranslateService);
+  readonly #translate = inject(NgxSignalTranslateService);
 
-  constructor(){
-    this.#signalTranslateService.setLanguage('en');
+  constructor() {
+    this.#translate.setLanguage('en');
   }
 }
 ```
 
-## A language file
+## Language files
 
-The language files should be JSON files, and the language key should be the file name.
+- Files are JSON, named by language code (e.g., `en.json`, `de.json`).
+- Keys map to strings; unknown keys return the key name.
 
-Example:
+Example `en.json`:
+
 ```json
 {
-  "DEMO": "Demo"
+  "HELLO": "Hello",
+  "HELLO_NAME": "Hello {name}"
 }
 ```
 
-
-## Params in the language file
-
-The language files be able to handle variables in the translation string. When the translation service gets variables for a replacement, it will try to replace these keys in the template string.
-*You need to put the variable key inside brackets.*
-
-Example:
-```json
-{
-  "DEMO": "Demo {param}"
-}
-```
+Placeholders use `{key}` syntax and are replaced with `TranslateParams` values (string or number).
 
 ## Usage
 
-### Component template
+### Template pipe (returns a Signal)
 
 ```ts
+import { Component } from '@angular/core';
 import { NgxSignalTranslatePipe } from 'ngx-signal-translate';
 
 @Component({
-  imports: [NgxSignalTranslatePipe]
+  selector: 'demo-cmp',
+  standalone: true,
+  imports: [NgxSignalTranslatePipe],
+  template: `
+    <p>{{ ('HELLO' | signalTranslate)() }}</p>
+    <p>{{ ('HELLO_NAME' | signalTranslate : { name: 'Ada' })() }}</p>
+  `,
 })
 export class DemoComponent {}
 ```
 
-without params:
-
-```html
-<p>{{('Demo' | signalTranslate)()}}</p>
-```
-
-with params:
-
-```html
-<p>{{('Demo' | signalTranslate : {param: 'hello'})()}}</p>
-```
-
-### Typescript files
+### Service in TypeScript
 
 ```ts
+import { Component, computed, effect, inject } from '@angular/core';
 import { NgxSignalTranslateService } from 'ngx-signal-translate';
 
-@Component({})
-export class DemoComponent implements ngOnInit{
-  readonly #signalTranslateService = inject(NgxSignalTranslateService);
-  readonly #translatedText = computed(() => this.#signalTranslateService.translate('DEMO'));
+@Component({
+  selector: 'demo-logic',
+  template: '{{ greeting() }}',
+})
+export class DemoLogicComponent {
+  readonly #translate = inject(NgxSignalTranslateService);
+  readonly greeting = computed(() => this.#translate.translate('HELLO'));
 
   constructor() {
+    this.#translate.setLanguage('en');
+
     effect(() => {
-      console.log(this.#signalTranslateService.translate('DEMO'));
+      // Runs whenever language resources change
+      console.log(this.#translate.translate('HELLO_NAME', { name: 'Ada' }));
     });
-    /* The translate function triggers the signal effects. */
-  }
 
-  public ngOnInit(): void {
-    console.log(this.#signalTranslateService.translate('DEMO'));
-    /* If the selected language files were not loaded, then the function will return with the translation key. */
-
-    this.#signalTranslateService.translate$('DEMO').subscribe(console.log);
-    /* The translate$ observable will wait for the language file to load. */
-
-    console.log(this.#translatedText());
-    /* The translate function works with computed signals. That will trigger the value refresh when the language resource / selected language changed. */
+    this.#translate.translate$('HELLO').subscribe(console.log);
   }
 }
 ```
 
-The second parameter can be used to pass translate variables to the _translate_ and _translate$_ function.
+**Behavior notes**
+- `translate` returns the key if the language or key is missing.
+- `translate$` waits for the language to be selected and loaded before emitting.
+- Language files load once per language; failed loads resolve to empty resources and also fall back to returning the key.
 
-## Compatibility with Angular Versions
+## Compatibility
 
 <table>
   <thead>
@@ -139,36 +125,20 @@ The second parameter can be used to pass translate variables to the _translate_ 
   </thead>
   <tbody>
     <tr>
-      <td>
-        -
-      </td>
-      <td>
-        Newer versions follow Angular’s versioning format.
-      </td>
+      <td>-</td>
+      <td>Newer versions follow Angular versioning.</td>
     </tr>
     <tr>
-      <td>
-        3.x
-      </td>
-      <td>
-        >= 20.x.x
-      </td>
+      <td>3.x</td>
+      <td>>= 20.x.x</td>
     </tr>
     <tr>
-      <td>
-        2.x
-      </td>
-      <td>
-        19.x.x
-      </td>
+      <td>2.x</td>
+      <td>19.x.x</td>
     </tr>
     <tr>
-      <td>
-        1.x
-      </td>
-      <td>
-        18.x.x
-      </td>
+      <td>1.x</td>
+      <td>18.x.x</td>
     </tr>
   </tbody>
 </table>

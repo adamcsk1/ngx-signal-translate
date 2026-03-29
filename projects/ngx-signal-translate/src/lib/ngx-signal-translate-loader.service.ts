@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { LanguageResource } from './ngx-signal-translate.interface';
 import { signalTranslateConfig } from './ngx-signal-translate.util';
 
 @Injectable({
@@ -10,8 +11,8 @@ export class NgxSignalTranslateLoaderService {
   readonly #config = inject(signalTranslateConfig);
   readonly #httpClient = inject(HttpClient);
 
-  public loadTranslationFile(language: string): Observable<Record<string, string> | null> {
-    return this.#httpClient.get<Record<string, string> | null>(this.#buildUrl(language)).pipe(catchError(() => of(null)));
+  public loadTranslationFile(language: string): Observable<LanguageResource> {
+    return this.#httpClient.get<LanguageResource>(this.#buildUrl(language));
   }
 
   #buildUrl(language: string): string {

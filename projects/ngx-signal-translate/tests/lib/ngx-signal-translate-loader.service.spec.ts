@@ -85,7 +85,7 @@ describe('NgxSignalTranslateLoaderService', () => {
       expect(await responsePromise).toEqual(mockResponse);
     });
 
-    it('should return with null when the pipe catch a http error', async () => {
+    it('should propagate http errors', async () => {
       config.path = '';
 
       const responsePromise = lastValueFrom(service.loadTranslationFile('en'));
@@ -93,7 +93,7 @@ describe('NgxSignalTranslateLoaderService', () => {
       req.error(new ProgressEvent('404'), { status: 404 });
 
       expect(req.request.method).toBe('GET');
-      expect(await responsePromise).toBe(null);
+      await expect(responsePromise).rejects.toThrow();
     });
   });
 });

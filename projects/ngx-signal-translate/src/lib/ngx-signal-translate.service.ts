@@ -3,7 +3,7 @@ import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap, filter, switchMap, take } from 'rxjs/operators';
 import { NgxSignalTranslateLoaderService } from './ngx-signal-translate-loader.service';
-import { LanguageResources, TranslateParams } from './ngx-signal-translate.interface';
+import { LanguageResource, LanguageResources, TranslateParams } from './ngx-signal-translate.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -34,7 +34,12 @@ export class NgxSignalTranslateService {
 
     const value = languageResources[currentLanguage]?.[key];
 
-    if (!value) return key;
+    if (!value) {
+      if (languageResources[currentLanguage]) {
+        console.warn(`ngx-signal-translate: Missing translation for key "${key}" in language "${currentLanguage}"`);
+      }
+      return key;
+    }
     if (!params) return value;
 
     return Object.entries(params).reduce((previousValue, [paramKey, paramValue]) => previousValue.replaceAll(`{${paramKey}}`, String(paramValue)), value);
@@ -54,13 +59,13 @@ export class NgxSignalTranslateService {
 
   #ensureLanguageLoaded(language: string): Observable<void> {
     if (!language) return of(void 0);
-    if (this.#languageResources()[language]) return of(void 0);
+    if (language in this.#languageResources()) return of(void 0);
 
     const inFlight = this.#inFlightLoads.get(language);
     if (inFlight) return inFlight;
 
     const load$ = this.#ngxSignalTranslateLoaderService.loadTranslationFile(language).pipe(
-      tap((resource) => this.#patchLanguageResource(language, resource || {})),
+      tap((resource) => this.#patchLanguageResource(language, resource)),
       catchError(() => {
         this.#patchLanguageResource(language, {});
         return of(null);
@@ -74,7 +79,7 @@ export class NgxSignalTranslateService {
     return load$;
   }
 
-  #patchLanguageResource(language: string, resource: Record<string, string>): void {
+  #patchLanguageResource(language: string, resource: LanguageResource): void {
     this.#languageResources.update((state) => ({ ...state, [language]: resource }));
   }
 }

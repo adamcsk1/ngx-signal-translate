@@ -4,7 +4,6 @@ import { NgxSignalTranslateService } from './ngx-signal-translate.service';
 
 @Pipe({
   name: 'signalTranslate',
-  standalone: true,
 })
 export class NgxSignalTranslatePipe implements PipeTransform {
   readonly #ngxSignalTranslateService = inject(NgxSignalTranslateService);

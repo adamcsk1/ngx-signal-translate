@@ -1,6 +1,6 @@
 {
   "name": "ngx-signal-translate",
-  "version": "21.0.2",
+  "version": "21.0.3",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -13,7 +13,6 @@
     "copy": "node scripts/copy.js",
     "prepare": "husky"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "^21.2.6",
     "@angular/common": "^21.2.6",

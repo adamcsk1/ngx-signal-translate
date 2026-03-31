@@ -35,7 +35,7 @@ export class NgxSignalTranslateService {
     const value = languageResources[currentLanguage]?.[key];
 
     if (!value) {
-      if (languageResources[currentLanguage]) {
+      if (Object.keys(languageResources[currentLanguage] ?? {}).length > 0) {
         console.warn(`ngx-signal-translate: Missing translation for key "${key}" in language "${currentLanguage}"`);
       }
       return key;

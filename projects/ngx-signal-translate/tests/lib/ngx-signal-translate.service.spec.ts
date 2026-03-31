@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { NgxSignalTranslateService, provideSignalTranslateConfig } from '../../src/public-api';
 import { NgxSignalTranslateLoaderService } from '../../src/lib/ngx-signal-translate-loader.service';
-import { lastValueFrom, of } from 'rxjs';
+import { lastValueFrom, of, throwError } from 'rxjs';
 import { LanguageResource } from '../../src/lib/ngx-signal-translate.interface';
 import { computed, EffectRef, Injector, runInInjectionContext } from '@angular/core';
 import { createTestEffectFactory } from './ngx-signal-translate.service.util';
@@ -53,6 +53,13 @@ describe('NgxSignalTranslateService', () => {
     expect(loadTranslationFileSpy).toHaveBeenCalledTimes(2);
   });
 
+  it('should not warn before any language file is loaded', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+    service.translate('UNKNOWN_KEY');
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
   describe('translate', () => {
     beforeEach(async () => {
       service.setLanguage('en');
@@ -72,6 +79,23 @@ describe('NgxSignalTranslateService', () => {
       TestBed.tick();
       const translateKey = 'MOCK_UNKNOWN_LANGUAGE';
       expect(service.translate(translateKey)).toBe(translateKey);
+    });
+
+    it('should warn when key is missing and resource has at least one key', () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+      service.translate('UNKNOWN_KEY');
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('UNKNOWN_KEY'));
+      warnSpy.mockRestore();
+    });
+
+    it('should not warn when resource is empty due to failed load', () => {
+      loadTranslationFileSpy.mockReturnValue(throwError(() => new Error('404')));
+      service.setLanguage('de');
+      TestBed.tick();
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
+      service.translate('UNKNOWN_KEY');
+      expect(warnSpy).not.toHaveBeenCalled();
+      warnSpy.mockRestore();
     });
 
     it('should replace params', () => expect(service.translate('MOCK_PARAM', { param: '42' })).toBe('Mock 42'));

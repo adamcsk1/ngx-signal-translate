@@ -1,10 +1,9 @@
 # NgxSignalTranslate
 
-Signal-first i18n for Angular: lazy-loaded JSON resources, a signal-friendly pipe, and a service with sync, signal, and observable APIs.
+Signal-first i18n for Angular: lazy-loaded JSON resources, and a service with sync, signal, and observable APIs.
 
 ## Highlights
 - Lazy-load language JSON over HTTP; each language loads once and caches.
-- Template pipe that returns a `Signal<string>` for ergonomic use in templates.
 - Service APIs: `translate` (sync, signal-friendly), `translate$` (observable that waits for language load), and `setLanguage`.
 - Placeholder replacement with `string | number` params.
 
@@ -64,22 +63,28 @@ Placeholders use `{key}` syntax and are replaced with `TranslateParams` values (
 
 ## Usage
 
-### Template pipe (returns a Signal)
+### Templates (recommended)
+
+Since Angular tracks signal reads inside template expressions, you can call `translate()` directly — it's already reactive.
 
 ```ts
-import { Component } from '@angular/core';
-import { NgxSignalTranslatePipe } from 'ngx-signal-translate';
+import { Component, inject } from '@angular/core';
+import { NgxSignalTranslateService } from 'ngx-signal-translate';
 
 @Component({
   selector: 'demo-cmp',
   standalone: true,
-  imports: [NgxSignalTranslatePipe],
   template: `
-    <p>{{ ('HELLO' | signalTranslate)() }}</p>
-    <p>{{ ('HELLO_NAME' | signalTranslate : { name: 'Ada' })() }}</p>
+    <p>{{ ngxSignalTranslate.translate('HELLO') }}</p>
+    <p>{{ ngxSignalTranslate.translate('HELLO_NAME', { name: 'Ada' }) }}</p>
+
+    <input [placeholder]="ngxSignalTranslate.translate('Search')" />
+    <button [attr.aria-label]="ngxSignalTranslate.translate('Save')">💾</button>
   `,
 })
-export class DemoComponent {}
+export class DemoComponent {
+  protected readonly ngxSignalTranslate = inject(NgxSignalTranslateService);
+}
 ```
 
 ### Service in TypeScript
@@ -113,6 +118,11 @@ export class DemoLogicComponent {
 - `translate` returns the key if the language or key is missing.
 - `translate$` waits for the language to be selected and loaded before emitting.
 - Language files load once per language; failed loads resolve to empty resources and also fall back to returning the key.
+
+## Breaking changes
+
+### 21.0.5
+- The `signalTranslate` pipe has been removed. Use `NgxSignalTranslateService.translate()` directly in templates instead. Angular's reactive context re-evaluates the expression automatically whenever the language or resources change.
 
 ## Compatibility
 

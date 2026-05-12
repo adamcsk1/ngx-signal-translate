@@ -65,7 +65,7 @@ Placeholders use `{key}` syntax and are replaced with `TranslateParams` values (
 
 ### Templates (recommended)
 
-Since Angular tracks signal reads inside template expressions, you can call `translate()` directly — it's already reactive.
+Since Angular tracks signal reads inside template expressions, you can call `translate()` directly — it's already reactive. This avoids creating pipe-level signal wrappers and is the recommended default for normal template usage.
 
 ```ts
 import { Component, inject } from '@angular/core';
@@ -84,6 +84,27 @@ import { NgxSignalTranslateService } from 'ngx-signal-translate';
 })
 export class DemoComponent {
   protected readonly ngxSignalTranslate = inject(NgxSignalTranslateService);
+}
+```
+
+For high-frequency rendering, such as large lists or translations with inline params, prefer moving repeated translations into a `computed()` value. This avoids rebuilding params and formatting the same translated value on every template evaluation.
+
+```ts
+import { Component, computed, inject, input } from '@angular/core';
+import { NgxSignalTranslateService } from 'ngx-signal-translate';
+
+@Component({
+  selector: 'user-row',
+  standalone: true,
+  template: `<span>{{ userLabel() }}</span>`,
+})
+export class UserRowComponent {
+  readonly name = input.required<string>();
+
+  readonly #translate = inject(NgxSignalTranslateService);
+  protected readonly userLabel = computed(() =>
+    this.#translate.translate('HELLO_NAME', { name: this.name() }),
+  );
 }
 ```
 
